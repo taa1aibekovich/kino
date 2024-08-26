@@ -1,9 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
-from phonenumber_field.formfields import PhoneNumberField
+from phonenumber_field.modelfields import PhoneNumberField
 
 
 class UserProfile(models.Model):
+    user_name = models.TextField()
     nickname = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     phone = PhoneNumberField()
@@ -11,6 +12,7 @@ class UserProfile(models.Model):
         ('Pro', 'Pro'),
         ('Simple', 'Simple'),
     )
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='simple', null=True, blank=True)
 
     def __str__(self):
         return self.nickname
@@ -65,6 +67,7 @@ class Movie(models.Model):
         ('1080', '1080'),
         ('1080 Ultra', '1080 Ultra'),
     )
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='140', null=True, blank=True)
     movie_time = models.IntegerField()
     description = models.TextField()
     movie_trailer = models.URLField(null=True, blank=True)
@@ -73,7 +76,7 @@ class Movie(models.Model):
         ('pro', 'pro'),
         ('Simple', 'Simple'),
     )
-
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='simple', null=True, blank=True)
     def __str__(self):
         return self.movie_name
 
@@ -99,17 +102,17 @@ class Comment(models.Model):
 
 
 class Cart(models. Model):
-    user = models. OneToOneField(UserProfile, on_delete=models. CASCADE, related_name='cart')
+    user_name = models. OneToOneField(UserProfile, on_delete=models. CASCADE, related_name='cart')
     created_date = models. DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.user}'
+        return f'{self.user_name}'
 
 
 class CarItem(models. Model):
-    cart = models. ForeignKey(Cart, related_name='items', on_delete=models. CASCADE)
-    product = models. ForeignKey(Movie, on_delete=models. CASCADE)
+    cart_name = models. ForeignKey(Cart, related_name='items', on_delete=models. CASCADE)
+    movie_name = models.ForeignKey(Movie, on_delete=models. CASCADE)
 
     def __str__(self):
-        return f'{self.product} -{self.cart}'
+        return f'{self.movie_name} -{self.cart_name}'
 

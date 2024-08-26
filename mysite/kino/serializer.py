@@ -1,5 +1,41 @@
+from django.contrib.auth import authenticate
 from rest_framework import serializers
 from .models import *
+from django.contrib.auth.models import User
+
+#
+# class UserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = UserProfile
+#         fields = ['nickname', 'email', 'phone', 'status']
+#
+#     def create(self, validated_data):
+#         user = UserProfile.objects.create_user(**validated_data)
+#         return user
+#
+
+
+#
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['nickname', 'email', 'phone', 'status']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = UserProfile.objects.create_user(**validated_data)
+        return user
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user and user.is_active:
+            return user
+        raise serializers.ValidationError("Неверные учетные данные")
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -39,7 +75,9 @@ class MovieSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Movie
-        fields = ['id', 'movie_name', 'movie_image', 'avg_rating', 'date', 'country', 'genre']
+        fields = ['id', 'date', 'country', 'director', 'avg_rating', 'actors', 'genre', 'status', 'movie_time',
+                  'description', 'movie_trailer',
+                  'movie_image', 'status']
 
     def get_avg_rating(self, obj):
         ratings = Rating.objects.filter(movie=obj)
@@ -73,7 +111,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CarItem
-        fields = ['id', 'product', 'product_id',]
+        fields = ['id', 'product', 'product_id' ]
 
 
 class CartSerializer(serializers.ModelSerializer):
@@ -81,5 +119,4 @@ class CartSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cart
-        fields = ['id', 'user', 'items']
-
+        fields = ['id', 'user', 'cart_name', 'movie_name']
